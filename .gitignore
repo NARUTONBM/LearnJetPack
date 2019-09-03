@@ -62,4 +62,3 @@ proguard-rules.pro
 gradle/
 gradlew
 gradlew.bat
-settings.gradle
