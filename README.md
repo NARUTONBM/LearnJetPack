@@ -1,2 +1,3 @@
 # LearnJetPack
-The demo project for learning the JetPack
+The demo project for learning the JetPack.
+
