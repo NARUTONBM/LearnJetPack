@@ -17,4 +17,16 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <!-- The default font for RecyclerView items is too small.
+    The margin is a simple delimiter between the words. -->
+    <style name="text_view_style">
+        <item name="android:textAppearance">@android:style/TextAppearance.Large</item>
+        <item name="android:background">@color/colorPrimaryLight</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+    </style>
 </resources>
