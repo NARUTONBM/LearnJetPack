@@ -1,10 +1,13 @@
 package com.demo.learnjetpack.room;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 /**
  * @author narut.
@@ -23,9 +26,38 @@ public abstract class WordRoomDb extends RoomDatabase {
             synchronized (WordRoomDb.class) {
                 Room.databaseBuilder(context.getApplicationContext(), WordRoomDb.class, "word_database")
                         .fallbackToDestructiveMigration()
+                        .addCallback(sCallback)
                         .build();
             }
         }
         return INSTANCE;
+    }
+
+    private static RoomDatabase.Callback sCallback = new RoomDatabase.Callback() {
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
+            new PopularDbAsync(INSTANCE).execute();
+        }
+    };
+
+    private static class PopularDbAsync extends AsyncTask<Void, Void, Void> {
+        private final WordDao mWordDao;
+        String[] words = {"a", "b", "c"};
+
+        public PopularDbAsync(WordRoomDb db) {
+            mWordDao = db.wordDao();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            mWordDao.deleteAll();
+
+            for (String s : words) {
+                Word word = new Word(s);
+                mWordDao.insert(word);
+            }
+            return null;
+        }
     }
 }

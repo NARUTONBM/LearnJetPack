@@ -9,11 +9,17 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * @author narut
  */
 public class MainActivity extends AppCompatActivity {
+
+    private WordViewModel mViewModel;
+    private WordListAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +31,20 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show());
+
+        RecyclerView rvItem = findViewById(R.id.rv_item);
+        mAdapter = new WordListAdapter(this);
+        rvItem.setAdapter(mAdapter);
+        rvItem.setLayoutManager(new LinearLayoutManager(this));
+
+        //mViewModel = new ViewModelProvider(this).get(WordViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mViewModel.getAllWords().observe(this, words -> mAdapter.setWords(words));
     }
 
     @Override

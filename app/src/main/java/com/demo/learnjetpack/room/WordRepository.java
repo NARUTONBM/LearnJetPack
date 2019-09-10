@@ -28,14 +28,14 @@ public class WordRepository {
     }
 
     public void insert(Word word) {
-        new insertAsyncTask(mWordDao).execute(word);
+        new InsertAsyncTask(mWordDao).execute(word);
     }
 
-    private static class insertAsyncTask extends AsyncTask<Word, Void, Void> {
+    private static class InsertAsyncTask extends AsyncTask<Word, Void, Void> {
 
         private WordDao mAsyncTaskDao;
 
-        public insertAsyncTask(WordDao asyncTaskDao) {
+        InsertAsyncTask(WordDao asyncTaskDao) {
             mAsyncTaskDao = asyncTaskDao;
         }
 
