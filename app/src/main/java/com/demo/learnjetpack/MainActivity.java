@@ -9,7 +9,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,14 +37,14 @@ public class MainActivity extends AppCompatActivity {
         rvItem.setAdapter(mAdapter);
         rvItem.setLayoutManager(new LinearLayoutManager(this));
 
-        //mViewModel = new ViewModelProvider(this).get(WordViewModel.class);
-        mViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
+        mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(WordViewModel.class);
+        //mViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
+        mViewModel.getAllWords().observe(this, words -> mAdapter.setWords(words));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mViewModel.getAllWords().observe(this, words -> mAdapter.setWords(words));
     }
 
     @Override

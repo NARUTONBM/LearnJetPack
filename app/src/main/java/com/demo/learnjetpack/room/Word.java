@@ -1,5 +1,7 @@
 package com.demo.learnjetpack.room;
 
+import org.jetbrains.annotations.NotNull;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -22,6 +24,7 @@ public class Word {
         mWord = word;
     }
 
+    @NotNull
     public String getWord() {
         return mWord;
     }
