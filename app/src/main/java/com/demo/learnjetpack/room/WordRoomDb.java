@@ -53,11 +53,11 @@ public abstract class WordRoomDb extends RoomDatabase {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            mWordDao.deleteAll();
-
-            for (String s : words) {
-                Word word = new Word(s);
-                mWordDao.insert(word);
+            if (mWordDao.getAnyWord().length < 1) {
+                for (String word : words) {
+                    Word newWord = new Word(word);
+                    mWordDao.insert(newWord);
+                }
             }
             return null;
         }
