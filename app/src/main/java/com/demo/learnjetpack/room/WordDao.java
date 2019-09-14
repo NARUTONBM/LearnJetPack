@@ -4,9 +4,11 @@ import java.util.List;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 /**
  * @author narut.
@@ -29,6 +31,22 @@ public interface WordDao {
      */
     @Query("DELETE FROM word_table")
     void deleteAll();
+
+    /**
+     * 删除单条数据
+     *
+     * @param word 待删除的 word 数据
+     */
+    @Delete
+    void deleteWord(Word word);
+
+    /**
+     * 更新一条 word 数据
+     *
+     * @param word 待更新的 word 数据
+     */
+    @Update
+    void updateWord(Word... word);
 
     /**
      * 查询返回表中所有 word 数据

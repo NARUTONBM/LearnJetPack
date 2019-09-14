@@ -14,7 +14,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
  * @Date 2019-09-10.
  * @Time 0:24.
  */
-@Database(entities = {Word.class}, version = 1, exportSchema = false)
+@Database(entities = {Word.class}, version = 2, exportSchema = false)
 public abstract class WordRoomDb extends RoomDatabase {
 
     public abstract WordDao wordDao();
@@ -39,15 +39,15 @@ public abstract class WordRoomDb extends RoomDatabase {
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             super.onOpen(db);
-            new PopularDbAsync(INSTANCE).execute();
+            new PopulateDbAsync(INSTANCE).execute();
         }
     };
 
-    private static class PopularDbAsync extends AsyncTask<Void, Void, Void> {
+    private static class PopulateDbAsync extends AsyncTask<Void, Void, Void> {
         private final WordDao mWordDao;
         String[] words = {"a", "b", "c"};
 
-        public PopularDbAsync(WordRoomDb db) {
+        PopulateDbAsync(WordRoomDb db) {
             mWordDao = db.wordDao();
         }
 

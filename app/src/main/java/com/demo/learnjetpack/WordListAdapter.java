@@ -23,6 +23,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     private final LayoutInflater mInflater;
     private final Context mContext;
     private List<Word> mWordList;
+    private ClickListener mClickListener;
 
     public WordListAdapter(Context context) {
         mContext = context;
@@ -52,6 +53,10 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
         notifyDataSetChanged();
     }
 
+    Word getCurrentWord(int position) {
+        return mWordList.get(position);
+    }
+
     @Override
     public int getItemCount() {
         return mWordList != null ? mWordList.size() : 0;
@@ -61,9 +66,24 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
 
         private final TextView wordItem;
 
-        public WordViewHolder(@NonNull View itemView) {
+        WordViewHolder(@NonNull View itemView) {
             super(itemView);
             wordItem = itemView.findViewById(R.id.textView);
+            itemView.setOnClickListener(v -> mClickListener.onItemClick(v, getAdapterPosition()));
         }
+    }
+
+    void setonClickListener(ClickListener listener) {
+        mClickListener = listener;
+    }
+
+    public interface ClickListener {
+        /**
+         * rv item 的点击事件
+         *
+         * @param view     被点击的 item
+         * @param position 被点击 item 的索引
+         */
+        void onItemClick(View view, int position);
     }
 }

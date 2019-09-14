@@ -4,26 +4,35 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.demo.learnjetpack.room.Word;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import static com.demo.learnjetpack.NewWordActivity.EXTRA_REPLY;
+import static com.demo.learnjetpack.NewWordActivity.EXTRA_REPLY_ID;
 
 /**
  * @author narut
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements WordListAdapter.ClickListener {
 
+    public static final String UPDATE_WORD = "update_word";
+    public static final String UPDATE_WORD_ID = "update_word_id";
     private WordViewModel mViewModel;
     private WordListAdapter mAdapter;
     public static final int NEW_WORD_ACTIVITY_REQUEST_CODE = 1;
+    private static final int UPDATE_WORD_ACTIVITY_REQUEST_CODE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +49,27 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView rvItem = findViewById(R.id.rv_item);
         mAdapter = new WordListAdapter(this);
+        mAdapter.setonClickListener(this);
         rvItem.setAdapter(mAdapter);
         rvItem.setLayoutManager(new LinearLayoutManager(this));
+        ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                Word currentWord = mAdapter.getCurrentWord(position);
+                Toast.makeText(MainActivity.this, String.format("Deleting the \"%s\".", currentWord.getWord()),
+                        Toast.LENGTH_SHORT).show();
+                mViewModel.deleteWord(currentWord);
+            }
+        });
+        touchHelper.attachToRecyclerView(rvItem);
 
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(WordViewModel.class);
         //mViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
@@ -68,7 +96,10 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.clear_data) {
+            Toast.makeText(this, "Clearing the data...", Toast.LENGTH_SHORT).show();
+            mViewModel.deleteAll();
+
             return true;
         }
 
@@ -78,11 +109,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == NEW_WORD_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            Word word = new Word(data.getStringExtra(NewWordActivity.EXTRA_REPLY));
-            mViewModel.insertWord(word);
+        if (resultCode == RESULT_OK) {
+            Word word = new Word(data.getStringExtra(EXTRA_REPLY));
+            if (requestCode == NEW_WORD_ACTIVITY_REQUEST_CODE) {
+                mViewModel.insertWord(word);
+            } else {
+                long wordId = data.getLongExtra(EXTRA_REPLY_ID, -1);
+                if (wordId != -1) {
+                    mViewModel.updateWord(new Word(wordId, word.getWord()));
+                } else {
+                    Toast.makeText(this, "Failed to update.", Toast.LENGTH_SHORT).show();
+                }
+            }
         } else {
             Toast.makeText(getApplicationContext(), R.string.empty_not_saved, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        Word currentWord = mAdapter.getCurrentWord(position);
+        Intent intent = new Intent(this, NewWordActivity.class);
+        intent.putExtra(UPDATE_WORD, currentWord.getWord());
+        intent.putExtra(UPDATE_WORD_ID, currentWord.getId());
+        startActivityForResult(intent, UPDATE_WORD_ACTIVITY_REQUEST_CODE);
     }
 }
