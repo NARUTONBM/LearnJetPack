@@ -1,13 +1,14 @@
 package com.demo.learnjetpack.room;
 
 import android.content.Context;
-import android.os.AsyncTask;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import io.reactivex.disposables.Disposable;
 
 /**
  * @author narut.
@@ -17,9 +18,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 @Database(entities = {Word.class}, version = 2, exportSchema = false)
 public abstract class WordRoomDb extends RoomDatabase {
 
-    public abstract WordDao wordDao();
-
+    private static final String TAG = WordRoomDb.class.getSimpleName();
     private static WordRoomDb INSTANCE;
+
+    public abstract WordDao wordDao();
 
     static WordRoomDb getDatabase(final Context context) {
         if (INSTANCE == null) {
@@ -39,27 +41,20 @@ public abstract class WordRoomDb extends RoomDatabase {
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             super.onOpen(db);
-            new PopulateDbAsync(INSTANCE).execute();
+            String[] words = {"a", "b", "c"};
+            WordDao wordDao = INSTANCE.wordDao();
+            Disposable subscribe = wordDao.getAnyWord()
+                    .filter(wordList -> wordList.size() == 0)
+                    .map(wordList -> {
+                        for (String word : words) {
+                            Word newWord = new Word(word);
+                            wordDao.insert(newWord)
+                                    .subscribe(aLong -> Log.d(TAG, String.format("在第%d行插入一条新数据", aLong)));
+                        }
+
+                        return words.length;
+                    })
+                    .subscribe(integer -> Log.d(TAG, "初始化数据库，新增了 " + integer + " 条数据。"));
         }
     };
-
-    private static class PopulateDbAsync extends AsyncTask<Void, Void, Void> {
-        private final WordDao mWordDao;
-        String[] words = {"a", "b", "c"};
-
-        PopulateDbAsync(WordRoomDb db) {
-            mWordDao = db.wordDao();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            if (mWordDao.getAnyWord().length < 1) {
-                for (String word : words) {
-                    Word newWord = new Word(word);
-                    mWordDao.insert(newWord);
-                }
-            }
-            return null;
-        }
-    }
 }

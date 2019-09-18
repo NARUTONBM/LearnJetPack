@@ -1,11 +1,11 @@
 package com.demo.learnjetpack.room;
 
 import android.app.Application;
-import android.os.AsyncTask;
 
 import java.util.List;
 
-import androidx.lifecycle.LiveData;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 /**
  * @author narut.
@@ -15,90 +15,37 @@ import androidx.lifecycle.LiveData;
 public class WordRepository {
 
     private WordDao mWordDao;
-    private LiveData<List<Word>> mAllWord;
 
     public WordRepository(Application application) {
         WordRoomDb db = WordRoomDb.getDatabase(application);
         mWordDao = db.wordDao();
-        mAllWord = mWordDao.getAllWord();
     }
 
-    public LiveData<List<Word>> getAllWord() {
-        return mAllWord;
+    public Flowable<List<Word>> getAllWord() {
+        return mWordDao.getAllWord()
+                .map(words -> words);
     }
 
-    public void insert(Word word) {
-        new InsertAsyncTask(mWordDao).execute(word);
+    public Single<Long> insert(Word word) {
+        //new InsertAsyncTask(mWordDao).execute(word);
+        return mWordDao.insert(word)
+                .map(Long::longValue);
     }
 
-    public void deleteWord(Word word) {
-        new DeleteWordAsyncTask(mWordDao).execute(word);
+    public Single<Integer> deleteWord(Word word) {
+        //new DeleteWordAsyncTask(mWordDao).execute(word);
+        return mWordDao.deleteWord(word)
+                .map(integer -> integer);
     }
 
     public void deleteAll() {
-        new DeleteAllWordsAsyncTask(mWordDao).execute();
+        //new DeleteAllWordsAsyncTask(mWordDao).execute();
+        mWordDao.deleteAll();
     }
 
-    public void updateWord(Word word) {
-        new UpdateWordAsyncTask(mWordDao).execute(word);
-    }
-
-    private static class InsertAsyncTask extends AsyncTask<Word, Void, Void> {
-
-        private WordDao mInsertDao;
-
-        InsertAsyncTask(WordDao insertDao) {
-            mInsertDao = insertDao;
-        }
-
-        @Override
-        protected Void doInBackground(Word... words) {
-            mInsertDao.insert(words[0]);
-            return null;
-        }
-    }
-
-    private static class DeleteWordAsyncTask extends AsyncTask<Word, Void, Void> {
-
-        private WordDao mDeleteWordDao;
-
-        DeleteWordAsyncTask(WordDao deleteWordDao) {
-            mDeleteWordDao = deleteWordDao;
-        }
-
-        @Override
-        protected Void doInBackground(Word... words) {
-            mDeleteWordDao.deleteWord(words[0]);
-            return null;
-        }
-    }
-
-    private static class DeleteAllWordsAsyncTask extends AsyncTask<Void, Void, Void> {
-        private WordDao mDeleteAllWordsDao;
-
-        DeleteAllWordsAsyncTask(WordDao deleteAllWordsDao) {
-            mDeleteAllWordsDao = deleteAllWordsDao;
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            mDeleteAllWordsDao.deleteAll();
-            return null;
-        }
-    }
-
-    private static class UpdateWordAsyncTask extends AsyncTask<Word, Void, Void> {
-
-        private WordDao mUpdateWordDao;
-
-        UpdateWordAsyncTask(WordDao updateWordDao) {
-            mUpdateWordDao = updateWordDao;
-        }
-
-        @Override
-        protected Void doInBackground(Word... words) {
-            mUpdateWordDao.updateWord(words[0]);
-            return null;
-        }
+    public Single<Integer> updateWord(Word word) {
+        //new UpdateWordAsyncTask(mWordDao).execute(word);
+        return mWordDao.updateWord(word)
+                .map(integer -> integer);
     }
 }

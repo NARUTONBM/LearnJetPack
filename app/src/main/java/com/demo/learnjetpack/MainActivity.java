@@ -1,7 +1,9 @@
 package com.demo.learnjetpack;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +20,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.demo.learnjetpack.NewWordActivity.EXTRA_REPLY;
 import static com.demo.learnjetpack.NewWordActivity.EXTRA_REPLY_ID;
@@ -25,8 +29,10 @@ import static com.demo.learnjetpack.NewWordActivity.EXTRA_REPLY_ID;
 /**
  * @author narut
  */
+@SuppressLint("CheckResult")
 public class MainActivity extends AppCompatActivity implements WordListAdapter.ClickListener {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     public static final String UPDATE_WORD = "update_word";
     public static final String UPDATE_WORD_ID = "update_word_id";
     private WordViewModel mViewModel;
@@ -66,14 +72,21 @@ public class MainActivity extends AppCompatActivity implements WordListAdapter.C
                 Word currentWord = mAdapter.getCurrentWord(position);
                 Toast.makeText(MainActivity.this, String.format("Deleting the \"%s\".", currentWord.getWord()),
                         Toast.LENGTH_SHORT).show();
-                mViewModel.deleteWord(currentWord);
+                mViewModel.deleteWord(currentWord)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(integer -> Log.d(TAG, String.format("删除了%d行的数据", integer)));
             }
         });
         touchHelper.attachToRecyclerView(rvItem);
 
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(WordViewModel.class);
         //mViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
-        mViewModel.getAllWords().observe(this, words -> mAdapter.setWords(words));
+        //mViewModel.getAllWords().observe(this, words -> mAdapter.setWords(words));
+        mViewModel.getAllWords()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(words -> mAdapter.setWords(words));
     }
 
     @Override
@@ -112,11 +125,17 @@ public class MainActivity extends AppCompatActivity implements WordListAdapter.C
         if (resultCode == RESULT_OK) {
             Word word = new Word(data.getStringExtra(EXTRA_REPLY));
             if (requestCode == NEW_WORD_ACTIVITY_REQUEST_CODE) {
-                mViewModel.insertWord(word);
+                mViewModel.insertWord(word)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(aLong -> Log.d(TAG, String.format("在第%d行插入一条新数据", aLong)));
             } else {
                 long wordId = data.getLongExtra(EXTRA_REPLY_ID, -1);
                 if (wordId != -1) {
-                    mViewModel.updateWord(new Word(wordId, word.getWord()));
+                    mViewModel.updateWord(new Word(wordId, word.getWord()))
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(aLong -> Log.d(TAG, String.format("修改了%d行的数据", aLong)));
                 } else {
                     Toast.makeText(this, "Failed to update.", Toast.LENGTH_SHORT).show();
                 }

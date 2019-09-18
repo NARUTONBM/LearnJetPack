@@ -9,7 +9,8 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 /**
  * @author narut.
@@ -19,31 +20,29 @@ import androidx.lifecycle.LiveData;
 public class WordViewModel extends AndroidViewModel {
 
     private WordRepository mRepository;
-    private LiveData<List<Word>> mAllWords;
 
     public WordViewModel(@NonNull Application application) {
         super(application);
         mRepository = new WordRepository(application);
-        mAllWords = mRepository.getAllWord();
     }
 
-    public void insertWord(Word word) {
-        mRepository.insert(word);
+    Single<Long> insertWord(Word word) {
+        return mRepository.insert(word);
     }
 
-    public void deleteWord(Word word) {
-        mRepository.deleteWord(word);
+    Single<Integer> deleteWord(Word word) {
+        return mRepository.deleteWord(word);
     }
 
-    public void deleteAll() {
+    void deleteAll() {
         mRepository.deleteAll();
     }
 
-    public void updateWord(Word word) {
-        mRepository.updateWord(word);
+    Single<Integer> updateWord(Word word) {
+        return mRepository.updateWord(word);
     }
 
-    LiveData<List<Word>> getAllWords() {
-        return mAllWords;
+    Flowable<List<Word>> getAllWords() {
+        return mRepository.getAllWord();
     }
 }

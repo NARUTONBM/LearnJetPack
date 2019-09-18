@@ -32,9 +32,12 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$rootProject.appcompatVersion"
     implementation "androidx.constraintlayout:constraintlayout:$rootProject.constraintlayoutVersion"
     implementation "com.google.android.material:material:$rootProject.materialVersion"
+    // RxJava
+    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxjavaVersion"
     // Room
     implementation "androidx.room:room-runtime:$rootProject.roomVersion"
     implementation "androidx.room:room-compiler:$rootProject.roomVersion"
+    implementation "androidx.room:room-rxjava2:$rootProject.roomVersion"
     implementation "androidx.room:room-testing:$rootProject.roomVersion"
     annotationProcessor "androidx.room:room-compiler:$rootProject.roomVersion"
     // Lifecycle
