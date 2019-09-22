@@ -1,4 +1,4 @@
-package com.demo.learnjetpack.room;
+package com.demo.learnjetpack.persistence;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.demo.learnjetpack.room.Word;
+import com.demo.learnjetpack.persistence.Word;
 
 import java.util.List;
 

@@ -2,8 +2,8 @@ package com.demo.learnjetpack;
 
 import android.app.Application;
 
-import com.demo.learnjetpack.room.Word;
-import com.demo.learnjetpack.room.WordRepository;
+import com.demo.learnjetpack.persistence.Word;
+import com.demo.learnjetpack.persistence.WordRepository;
 
 import java.util.List;
 

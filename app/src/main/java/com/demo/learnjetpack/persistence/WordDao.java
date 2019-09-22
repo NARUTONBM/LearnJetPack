@@ -1,4 +1,4 @@
-package com.demo.learnjetpack.room;
+package com.demo.learnjetpack.persistence;
 
 import java.util.List;
 
