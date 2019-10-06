@@ -1,13 +1,14 @@
 package com.demo.learnjetpack.persistence;
 
-import java.util.List;
-
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
+
+import java.util.List;
+
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 
@@ -41,7 +42,7 @@ public interface WordDao {
      * 删除所有数据
      */
     @Query("DELETE FROM word_table")
-    void deleteAll();
+    Single<Integer> deleteAll();
 
     /**
      * 删除单条数据
@@ -66,7 +67,7 @@ public interface WordDao {
      *
      * @return word 数据集合
      */
-    @Query("SELECT * from word_table ORDER BY word ASC")
+    @Query("SELECT * from word_table ORDER BY id ASC")
     Flowable<List<Word>> getAllWord();
 
     /**

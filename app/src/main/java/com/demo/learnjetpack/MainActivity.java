@@ -9,17 +9,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.demo.learnjetpack.persistence.Word;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.demo.learnjetpack.databinding.ActivityMainBinding;
+import com.demo.learnjetpack.persistence.Word;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -43,17 +46,17 @@ public class MainActivity extends AppCompatActivity implements WordListAdapter.C
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        ActivityMainBinding mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        FloatingActionButton fab = mainBinding.fab;
         fab.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, NewWordActivity.class);
             startActivityForResult(intent, NEW_WORD_ACTIVITY_REQUEST_CODE);
         });
 
-        RecyclerView rvItem = findViewById(R.id.rv_item);
+        RecyclerView rvItem = mainBinding.rvItem;
         mAdapter = new WordListAdapter(this);
         mAdapter.setonClickListener(this);
         rvItem.setAdapter(mAdapter);
@@ -80,7 +83,8 @@ public class MainActivity extends AppCompatActivity implements WordListAdapter.C
         });
         touchHelper.attachToRecyclerView(rvItem);
 
-        mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(WordViewModel.class);
+        mViewModel =
+                new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication())).get(WordViewModel.class);
         //mViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
         //mViewModel.getAllWords().observe(this, words -> mAdapter.setWords(words));
         mViewModel.getAllWords()
@@ -111,7 +115,10 @@ public class MainActivity extends AppCompatActivity implements WordListAdapter.C
         //noinspection SimplifiableIfStatement
         if (id == R.id.clear_data) {
             Toast.makeText(this, "Clearing the data...", Toast.LENGTH_SHORT).show();
-            mViewModel.deleteAll();
+            mViewModel.deleteAll()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(integer -> Log.d(TAG, String.format("共计删除了%d条数据", integer)));
 
             return true;
         }
@@ -141,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements WordListAdapter.C
                 }
             }
         } else {
-            Toast.makeText(getApplicationContext(), R.string.empty_not_saved, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.empty_not_saved, Toast.LENGTH_SHORT).show();
         }
     }
 

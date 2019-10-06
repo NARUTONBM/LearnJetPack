@@ -2,13 +2,14 @@ package com.demo.learnjetpack;
 
 import android.app.Application;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+
 import com.demo.learnjetpack.persistence.Word;
 import com.demo.learnjetpack.persistence.WordRepository;
 
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 
@@ -34,8 +35,8 @@ public class WordViewModel extends AndroidViewModel {
         return mRepository.deleteWord(word);
     }
 
-    void deleteAll() {
-        mRepository.deleteAll();
+    Single<Integer> deleteAll() {
+        return mRepository.deleteAll();
     }
 
     Single<Integer> updateWord(Word word) {

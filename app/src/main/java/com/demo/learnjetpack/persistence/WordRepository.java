@@ -38,9 +38,10 @@ public class WordRepository {
                 .map(integer -> integer);
     }
 
-    public void deleteAll() {
+    public Single<Integer> deleteAll() {
         //new DeleteAllWordsAsyncTask(mWordDao).execute();
-        mWordDao.deleteAll();
+        return mWordDao.deleteAll()
+                .map(integer -> integer);
     }
 
     public Single<Integer> updateWord(Word word) {
